@@ -1,6 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from . models import Product
 from category.models import Category
+from carts.models import CartItem
+
+from carts.views import _cart_id
 
 # Create your views here.
 
@@ -30,11 +33,14 @@ def store(request, category_slug=None):
 def product_detail(request, category_slug, product_slug):
   try:
     single_product = Product.objects.get(category__slug=category_slug, slug=product_slug)
+    in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request), product=single_product).exists()
+    
   except Exception as e:
     raise e
   
   context = {
-    'single_product': single_product
+    'single_product': single_product,
+    'in_cart'       : in_cart,
   }
   return render (request, 'store/product_detail.html', context)
 
@@ -51,3 +57,9 @@ def product_detail(request, category_slug, product_slug):
 ### we need to get the category of the Product (which is a foreign key in the product model) and we must also get the slug of the that Product's category
 ### so when we click on the product to go to the product details, we must get the product category, and we must also get the slug of that category
 ### underscore underscore is a synthax to get the slug of the category   category__slug 
+
+## the double underscore(__) means that we will check the cart model, because the cart is a foreign key of the cartItem (which means that we are searching the cartItem with a foreign key)
+## we will access the cart first, and with the cart (in the cartItem) we will access the cart id in the main cart model
+
+### we went to where the product detail is and that is why we were able to see the true or false
+### in_cart context is telling us whether that single product is a cart_item in the cart or not (true / false)
