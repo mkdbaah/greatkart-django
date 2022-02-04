@@ -4,6 +4,7 @@ from category.models import Category
 from carts.models import CartItem
 
 from carts.views import _cart_id
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 # Create your views here.
 
@@ -15,15 +16,21 @@ def store(request, category_slug=None):
   if category_slug != None:
     categories = get_object_or_404(Category, slug = category_slug)
     products = Product.objects.filter(category=categories, is_available=True)
+    paginator = Paginator(products, 3)
+    page = request.GET.get('page')
+    paged_products = paginator.get_page(page)
     product_count = products.count()
   else:
     products = Product.objects.all().filter(is_available=True)
+    paginator = Paginator(products, 3)
+    page = request.GET.get('page')
+    paged_products = paginator.get_page(page)
     product_count = products.count()
 
 
 
   context = {
-    'products': products,
+    'products': paged_products,
     'product_count': product_count,
   }
 
@@ -63,3 +70,8 @@ def product_detail(request, category_slug, product_slug):
 
 ### we went to where the product detail is and that is why we were able to see the true or false
 ### in_cart context is telling us whether that single product is a cart_item in the cart or not (true / false)
+
+# 'page' is the page in the url when it comes to the pagination
+### the 'paged_products' is now the number of products
+
+## in the store function, the if statement is for when the is no slug and the else is for when the user will click on lets say shirts, jeans or anything else and it must filter according to the slug
