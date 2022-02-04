@@ -2,9 +2,11 @@ from django.shortcuts import render, get_object_or_404
 from . models import Product
 from category.models import Category
 from carts.models import CartItem
+from django.db.models import Q
 
 from carts.views import _cart_id
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import HttpResponse
 
 # Create your views here.
 
@@ -21,7 +23,7 @@ def store(request, category_slug=None):
     paged_products = paginator.get_page(page)
     product_count = products.count()
   else:
-    products = Product.objects.all().filter(is_available=True)
+    products = Product.objects.all().filter(is_available=True).order_by('id')
     paginator = Paginator(products, 3)
     page = request.GET.get('page')
     paged_products = paginator.get_page(page)
@@ -53,6 +55,30 @@ def product_detail(request, category_slug, product_slug):
 
 
 
+def search(request):
+  if 'keyword' in request.GET:
+    ## in this case the keyword will store the value of jeans, shirts or any thing that was typed in the search box
+    keyword = request.GET['keyword']
+    if keyword:
+      ### if the keyword is not blank, then do this
+      products = Product.objects.order_by('-created_date').filter(Q(description__icontains=keyword) | Q(product_name__icontains=keyword))
+      product_count = products.count()
+
+  context = {
+    'products': products,
+    'product_count': product_count, 
+  }
+  return render(request, 'store/store.html', context)
+
+
+
+
+
+
+
+
+
+
 
 
 ### this is exactly where we render the store.html template and i am sure we can reach the database from this place (by importing the Products model here)
@@ -75,3 +101,16 @@ def product_detail(request, category_slug, product_slug):
 ### the 'paged_products' is now the number of products
 
 ## in the store function, the if statement is for when the is no slug and the else is for when the user will click on lets say shirts, jeans or anything else and it must filter according to the slug
+
+### /store/search/ is being treated as with a category slug and the error is (no category matches the given query)
+## /store/search/?keyword=shirts (this is what happens after the search function)
+### the keyword comes from the name of the input
+
+## we need to receive what is coming from the url in the case of the search parameter
+
+## __icontains means you are searching for the keyword in that part of the model
+### in django if we use the (,) it will treat it as AND because that is how the filter function works
+## Q is used for complex queries
+
+## One template which is the store.html is powered by 2 view functions, the store function and the search function and all of them render it 
+### the only difference is to say if 'search' is in request.path then do something in the store.html

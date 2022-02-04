@@ -7,7 +7,11 @@
 <!-- ========================= SECTION PAGETOP ========================= -->
 <section class="section-pagetop bg">
   <div class="container">
+    {% if 'search' in request.path %}
+    <h2 class="title-page">Search results for ...</h2>
+    {% else %}
     <h2 class="title-page">Our Store</h2>
+    {% endif %}
   </div>
   <!-- container //  -->
 </section>
@@ -129,7 +133,7 @@
         <!-- sect-heading -->
 
         <div class="row">
-          {% for product in products %}
+          {% if products %} {% for product in products %}
           <div class="col-md-4">
             <figure class="card card-product-grid">
               <div class="img-wrap">
@@ -149,7 +153,11 @@
               </figcaption>
             </figure>
           </div>
-          {% endfor %}
+          {% endfor %} {% else %}
+          <div>
+            <h3>No result found. Please try again.</h3>
+          </div>
+          {% endif %}
           <!-- col.// -->
         </div>
         <!-- row end.// -->
