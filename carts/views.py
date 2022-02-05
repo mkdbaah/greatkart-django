@@ -15,6 +15,11 @@ def _cart_id(request):
 
 
 def add_cart(request, product_id):
+  if request.method == 'POST':
+    color = request.POST['color']
+    size  = request.POST['size']
+    print(color, size)
+
   product = Product.objects.get(id=product_id)
 
   try:
@@ -124,3 +129,23 @@ def cart(request, total=0, quantity=0, cart_items=None):
 # this line in the front end is basically actuating that whole process again in this view file (which is a backend operation) // but the whole page was refreshing and i guess these are some of the reasons why we need react
 
 ### in the cart.html page the context passed into it is the cart or cart item but we can get the product from it (so this is working with both frontend and backend at the same time)
+
+## we have assigned url 'add_cart' single_product.id to the form action and therefore after the button is hit or submitted, the form will send the information to that url and therefore we have to come and handle it in the carts/views.py file
+
+### this the url for the product variation
+### /store/category/jeans/atx-jeans/?color=blue&size=medium
+# http://localhost:8000/cart/add_cart/1/?color=yellow&size=large  (as copied from the url)
+## the color will come from the name in the select and the size as well and that will enter the url and we will pick it by doing request.GET['size'] or request.GET['color'] because we set it up as a get request.
+
+## now we have the value for color and size in the database and that is what we will fetch to the user and even any number of them that the admin might set
+
+## variation_set.all means that it will bring all the data from the variation model (it must now be variation_set.color)which is the function name
+
+### we must have a variation manager because variation_set.all is bringing all the variations without considering where each of them should populate on the frontend
+
+## http://127.0.0.1:8000/cart/add_cart/1/?color=red&size=small     (but i don't understand the 1 in the middle there)
+
+## we did a GET request first so that we can test but later we did it a POST request
+## there is no get request anymore and the url will not deposite of the url part of the browser (so you will not see it in the browser url part because it is a POST request and the form will handle it)
+
+## it must not be only color and size but it must be dynamic so that in future when we add more variations it will be catered for automatically or dynamically

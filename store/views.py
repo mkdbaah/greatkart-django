@@ -114,3 +114,5 @@ def search(request):
 
 ## One template which is the store.html is powered by 2 view functions, the store function and the search function and all of them render it 
 ### the only difference is to say if 'search' is in request.path then do something in the store.html
+
+## in the case of product variation, a form must be created in the product_detail.html file so that it can send information about what will be choosen to the cart page or the next stage of the process

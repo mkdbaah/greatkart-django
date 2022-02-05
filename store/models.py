@@ -26,6 +26,35 @@ class Product(models.Model):
     return self.product_name
 
 
+class VariationManager(models.Manager):
+  def colors(self):
+    return super(VariationManager, self).filter(variation_category='color', is_active=True)
+  def sizes(self):
+    return super(VariationManager, self).filter(variation_category='size', is_active=True)
+
+
+variation_category_choice = (
+  ('color', 'color'),
+  ('size', 'size'),
+)
+
+class Variation(models.Model):
+  product            = models.ForeignKey(Product, on_delete=models.CASCADE)
+  variation_category = models.CharField(max_length=100, choices=variation_category_choice)
+  variation_value    = models.CharField(max_length=100)
+  is_active          = models.BooleanField(default=True)
+  created_date       = models.DateTimeField(auto_now=True)
+
+  objects = VariationManager()
+
+  def __unicode__(self):
+    return self.product
+
+
+
+
+
+
 
 
 
@@ -44,3 +73,5 @@ class Product(models.Model):
 ### if it deserves some slugs, the you can use the get_url feature that will be defined in the model
 
 ### is_available is different from the product going out of stock
+
+## choices = variation_category_choice means it will be a dropdown
