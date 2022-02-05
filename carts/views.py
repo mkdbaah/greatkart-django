@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from store.models import Product
+from store.models import Product, Variation
 from . models import Cart, CartItem
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -15,12 +15,22 @@ def _cart_id(request):
 
 
 def add_cart(request, product_id):
-  if request.method == 'POST':
-    color = request.POST['color']
-    size  = request.POST['size']
-    print(color, size)
-
   product = Product.objects.get(id=product_id)
+  product_variation = []
+  if request.method == 'POST':
+    # color = request.POST['color']
+    # size  = request.POST['size']
+    for item in request.POST:
+      key = item
+      value = request.POST[key]
+      # print(key, value) 
+    ## checking if the key and value pairs much exactly with the one in the model even though we did a dropdown we don't want to trust them
+      try:
+        variation = Variation.objects.get(product=product, variation_category__iexact=key, variation_value__iexact=value)
+        product_variation.append(variation)
+      except:
+        pass
+
 
   try:
     cart = Cart.objects.get(cart_id=_cart_id(request))
@@ -33,6 +43,11 @@ def add_cart(request, product_id):
 
   try:
     cart_item = CartItem.objects.get(product=product, cart=cart)
+    if len(product_variation) > 0:
+      cart_item.variations.clear()
+      ## get the color and size from the product variation
+      for item in product_variation:
+        cart_item.variations.add(item)
     cart_item.quantity += 1
     cart_item.save()
 
@@ -42,6 +57,11 @@ def add_cart(request, product_id):
       quantity = 1,
       cart = cart
     )
+    if len(product_variation) > 0:
+      cart_item.variations.clear()
+      ## get the color and size from the product variation
+      for item in product_variation:
+        cart_item.variations.add(item)
     cart_item.save()
 
   return redirect('cart')
@@ -149,3 +169,14 @@ def cart(request, total=0, quantity=0, cart_items=None):
 ## there is no get request anymore and the url will not deposite of the url part of the browser (so you will not see it in the browser url part because it is a POST request and the form will handle it)
 
 ## it must not be only color and size but it must be dynamic so that in future when we add more variations it will be catered for automatically or dynamically
+
+## this is the information about the cors that was sent along side with the post request (really beautiful)
+# csrfmiddlewaretoken CTtbsmPeLKLd6gR2zYze0ddLbaxGkm5tL1ZKGl447WmXga9RmYOV1YmDb3939yL7
+
+
+## in the add_cart function, we are getting the product , product variation , cart , cart item , in that order (really cool isn't it? ,,,, )
+## we can use the variation to change the cart items
+
+## the problem is that it is adding more of the variations to the same cartItem even when they are different.
+
+## it is adding a different variation to the same cartItem and so it doesn't tell me that the item might be deleted in the admin side but rather updates it to a new variation values

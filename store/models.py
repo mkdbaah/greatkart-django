@@ -47,8 +47,8 @@ class Variation(models.Model):
 
   objects = VariationManager()
 
-  def __unicode__(self):
-    return self.product
+  def __str__(self):
+    return self.variation_value
 
 
 
@@ -75,3 +75,5 @@ class Variation(models.Model):
 ### is_available is different from the product going out of stock
 
 ## choices = variation_category_choice means it will be a dropdown
+
+## we must be able to store the variation in a database field too in the cart item model because the variation must show so that we make a difference in the cart item with the variation
