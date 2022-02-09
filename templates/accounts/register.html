@@ -10,8 +10,6 @@
       <header class="mb-4"><h4 class="card-title">Sign up</h4></header>
       <form action="{% url 'register' %}" method="POST">
         {% csrf_token %}
-        <!-- {{ form.as_p }} -->
-
         <div class="form-row">
           <div class="col form-group">
             <label>First name</label>
@@ -65,7 +63,7 @@
     <!-- card-body.// -->
   </div>
   <!-- card .// -->
-  <p class="text-center mt-4">Have an account? <a href="">Log In</a></p>
+  <p class="text-center mt-4">Have an account? <a href="{% url 'login' %}">Log In</a></p>
   <br /><br />
   <!-- ============================ COMPONENT REGISTER  END.// ================================= -->
 </section>
