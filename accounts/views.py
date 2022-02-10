@@ -158,16 +158,23 @@ def resetPassword(request):
     password = request.POST['password']
     confirm_password = request.POST['confirm_password']
 
-    if password == confirm_password:
-      uid = request.session.get('uid')
-      user = Account.objects.get(pk=uid)
-      user.set_password(password)
-      user.save()
-      messages.success(request, 'Password reset successful.')
-      return redirect('login')
-    else:
-      messages.error(request, 'Passwords do not match')
-      return redirect('resetPassword')
+    try:
+
+      if password == confirm_password:
+        uid = request.session.get('uid')
+        user = Account.objects.get(pk=uid)
+        user.set_password(password)
+        user.save()
+        messages.success(request, 'Password reset successful.')
+        return redirect('login')
+      else:
+        messages.error(request, 'Passwords do not match')
+        return redirect('resetPassword')
+
+    except(TypeError, ValueError, OverflowError, Account.DoesNotExist):
+      messages.error(request, 'Please give us your email and we will send you a reset link')
+      return redirect('forgotPassword')
+    
 
   else:
     return render(request, 'accounts/resetPassword.html')
@@ -212,3 +219,4 @@ def resetPassword(request):
 ### supposed to be Account.objects.get(email=email) but it is rather 'email__iexact=email' so that it will be exact and the i will make it case insentitive
 
 ### in the resetPassword function, we don't need to pass the uidb64 becasuse it is already stored in the session
+### in the resetPassword function, i will set a try catch block to cater for the error
