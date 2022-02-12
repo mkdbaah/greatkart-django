@@ -217,8 +217,14 @@ def checkout(request, total=0, quantity=0, cart_items=None):
   try:
     tax = 0
     grand_total = 0
-    cart = Cart.objects.get(cart_id=_cart_id(request))
-    cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+    # cart = Cart.objects.get(cart_id=_cart_id(request))
+    # cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+
+    if request.user.is_authenticated:
+      cart_items = CartItem.objects.filter(user=request.user, is_active=True)
+    # else:
+    #   cart = Cart.objects.get(cart_id=_cart_id(request))
+    #   cart_items = CartItem.objects.filter(cart=cart, is_active=True)
 
     for cart_item in cart_items:
       total += (cart_item.product.price * cart_item.quantity)
@@ -322,3 +328,6 @@ def checkout(request, total=0, quantity=0, cart_items=None):
 # ▶ Local vars
 
 ### we have to redirect the person to the cart page again and not to the dashboard when they are making 
+### http://localhost:8000/accounts/login/?next=/cart/checkout/ this is the redirect url but we must make it dynamically (and this will all happen in the login view in the accounts app)
+
+### the same way we handled the views.cart for authenticated user that is the same way we will handle the views.checkout for authenticated user in the carts app in the views file and we will see the cart for the authenticated user there because in actual fact only authenticated users are allowed to go there

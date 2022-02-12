@@ -15,6 +15,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 
 from carts.views import _cart_id
+import requests
+
 
 # Create your views here.
 
@@ -114,7 +116,19 @@ def login(request):
         pass
       auth.login(request, user)
       messages.success(request, 'You are now logged in.')
-      return redirect('dashboard')
+      url = request.META.get('HTTP_REFERER')
+      try:
+        query = requests.utils.urlparse(url).query
+        # print('Query', query)
+        # next=/cart/checkout (we are spliting it into a dictionary with next as the key and the rest as the value)
+        params = dict(x.split('=') for x in query.split('&'))
+        # print('params ==>>>', params)
+        if 'next' in params:
+          nextPage = params['next']
+          return redirect(nextPage)
+      except:
+        return redirect('dashboard')
+
     else:
       messages.error(request, 'Invalid login credentials')
       return redirect('login')
@@ -273,3 +287,6 @@ def resetPassword(request):
 ### when we are not logged in we can show the cartItems based on the cart id, but when we are logged in, we should show the cartItems according to the user it belongs to
 
 ### when we are clicking on login it should group the items with the same product variation
+
+### request.META.get('HTTP_REFERER')   will grab the previous url where you came from
+### params ==>>> {'next': '/cart/checkout/'}
