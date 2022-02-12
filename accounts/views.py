@@ -75,9 +75,41 @@ def login(request):
         if is_cart_item_exists:
           cart_item = CartItem.objects.filter(cart=cart)
 
+          ### getting the product variations by cart id
+          product_variation = []
           for item in cart_item:
-            item.user = user
-            item.save()
+            variation = item.variations.all()
+            product_variation.append(list(variation))
+
+          ### getting the cart items from the user to access his product variations
+          cart_item = CartItem.objects.filter(user=user) 
+          ex_var_list = []
+          id = []
+          for item in cart_item:
+            existing_variation = item.variations.all()
+            ex_var_list.append(list(existing_variation))
+            id.append(item.id)
+          
+          # product_variation = [1, 2, 3, 4, 6]
+          # ex_var_list = [4, 6, 3, 5]
+          # we will look for what is common among the two and group them say ([4, 6])
+
+          for pr in product_variation:
+            if pr in ex_var_list:
+              index = ex_var_list.index(pr)
+              item_id = id[index]
+
+              item = CartItem.objects.get(id=item_id)
+              item.quantity += 1
+              item.user = user
+              item.save()
+
+            else:
+              cart_item = CartItem.objects.filter(cart=cart)
+              for item in cart_item:
+                item.user = user
+                item.save()
+
       except:
         pass
       auth.login(request, user)
@@ -239,3 +271,5 @@ def resetPassword(request):
 ### there will be no user assigned to the cartItem (cart) until we log in
 
 ### when we are not logged in we can show the cartItems based on the cart id, but when we are logged in, we should show the cartItems according to the user it belongs to
+
+### when we are clicking on login it should group the items with the same product variation
