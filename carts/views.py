@@ -148,11 +148,15 @@ def add_cart(request, product_id):
 
 ## reduce the number on the cart items by 1 (one)
 def remove_cart(request, product_id, cart_item_id):
-  cart = Cart.objects.get(cart_id=_cart_id(request))
+  
   product = get_object_or_404(Product, id=product_id)
 
   try:
-    cart_item = CartItem.objects.get(product=product, cart=cart, id=cart_item_id)
+    if request.user.is_authenticated:
+      cart_item = CartItem.objects.get(product=product, user=request.user, id=cart_item_id)
+    else:
+      cart = Cart.objects.get(cart_id=_cart_id(request))
+      cart_item = CartItem.objects.get(product=product, cart=cart, id=cart_item_id)
     if cart_item.quantity > 1:
       cart_item.quantity -= 1
       cart_item.save()
@@ -166,9 +170,12 @@ def remove_cart(request, product_id, cart_item_id):
 
 
 def remove_cart_item(request, product_id, cart_item_id):
-  cart = Cart.objects.get(cart_id=_cart_id(request))
   product = get_object_or_404(Product, id=product_id)
-  cart_item = CartItem.objects.get(product=product, cart=cart, id=cart_item_id)
+  if request.user.is_authenticated:
+    cart_item = CartItem.objects.get(product=product, user=request.user, id=cart_item_id)
+  else:  
+    cart = Cart.objects.get(cart_id=_cart_id(request))  
+    cart_item = CartItem.objects.get(product=product, cart=cart, id=cart_item_id)
   cart_item.delete()
   return redirect('cart')
 
@@ -305,3 +312,13 @@ def checkout(request, total=0, quantity=0, cart_items=None):
 
 ### as soon as we change the view function, the data going to the template will change and the cart / cartItems will pop up like magic
 ### as soon as we log in it takes our session and picks the cart or cartItem(i don't care) and pushes it unto the database to be assigned to that user and therefore if that user even add more items from another device kraa na it will detect he is the one and it will add up to the already existing cartItems
+
+### in the remove_cart function (minus sign is linked to that one)
+### cart = Cart.objects.get(cart_id=_cart_id(request)) must only run when the user is not logged in
+### the positive sign is linked to the remove_cart_item function in the view
+
+# C:\Users\HP\Desktop\website tutorials done\Best Django Project Ever\carts\views.py, line 173, in remove_cart_item
+#   cart = Cart.objects.get(cart_id=_cart_id(request)) …
+# ▶ Local vars
+
+### we have to redirect the person to the cart page again and not to the dashboard when they are making 
