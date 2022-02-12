@@ -3,6 +3,7 @@ from store.models import Product, Variation
 from . models import Cart, CartItem
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -115,8 +116,11 @@ def cart(request, total=0, quantity=0, cart_items=None):
   try:
     tax = 0
     grand_total = 0
-    cart = Cart.objects.get(cart_id=_cart_id(request))
-    cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+    if request.user.is_authenticated:
+      cart_items = CartItem.objects.filter(user=request.user, is_active=True)
+    else:
+      cart = Cart.objects.get(cart_id=_cart_id(request))
+      cart_items = CartItem.objects.filter(cart=cart, is_active=True)
 
     for cart_item in cart_items:
       total += (cart_item.product.price * cart_item.quantity)
@@ -139,6 +143,7 @@ def cart(request, total=0, quantity=0, cart_items=None):
   return render(request, 'store/cart.html', context)
 
 
+@login_required(login_url = 'login') 
 def checkout(request, total=0, quantity=0, cart_items=None):
   try:
     tax = 0
@@ -231,3 +236,10 @@ def checkout(request, total=0, quantity=0, cart_items=None):
 
 ## ex_var_list appeared in the server console as a query set and it must be converted to a list
 ## *product_variation will make sure all the product variations are added 
+
+### the cart item is been stored based on the session id (that is when the user is not logged in)
+### i went into the database as a super user (admin), and i saw a lot of carts and a lot of cartItems in the database and the carts were only stored by id and the cartItem was stored by product, variations, Cart(foreign key), quantity, is_active, 
+### ah i said it, he said we will have a user field (foreign key) in the cartItem side
+
+### as soon as we change the view function, the data going to the template will change and the cart / cartItems will pop up like magic
+### as soon as we log in it takes our session and picks the cart or cartItem(i don't care) and pushes it unto the database to be assigned to that user and therefore if that user even add more items from another device kraa na it will detect he is the one and it will add up to the already existing cartItems
