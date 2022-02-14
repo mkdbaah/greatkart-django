@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import datetime
+import json
 
-from . models import Order
+from . models import Order, Payment
 from carts.models import CartItem
 from . forms import OrderForm
 
@@ -10,6 +11,24 @@ from . forms import OrderForm
 
 
 def payments(request):
+  body = json.loads(request.body)
+  ### the information from paypal land in our frontend(browser) and we pass it through fetch to the backend and we can now take it to the payment model
+  # print(body)
+  order = Order.objects.get(user=request.user, is_ordered=False, order_number=body['orderID'])
+  payment = Payment(
+    user = request.user,
+    payment_id = body['transID'],
+    payment_method = body['payment_method'],
+    amount_paid = order.order_total,
+    status = body['status'],
+  )
+  payment.save()
+
+  ### because that particular (specific) order must have a payment too / we are updating the order model too
+  order.payment = payment 
+  order.is_ordered = True ### because they have paid //
+  order.save() 
+
   return render(request, 'orders/payments.html')
 
 

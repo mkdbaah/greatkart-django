@@ -74,4 +74,81 @@ class OrderProduct(models.Model):
     return self.product.product_name
 
 
-   
+
+
+
+### we must grab all the information about the payment from paypal that we console logged into the payment model
+
+# Capture result Objectcreate_time: "2022-02-14T09:35:58Z"id: "99C97108N4460334E"intent: "CAPTURE"links: Array(1)0: {href: 'https://api.sandbox.paypal.com/v2/checkout/orders/99C97108N4460334E', rel: 'self', method: 'GET'}length: 1[[Prototype]]: Array(0)payer: address: {country_code: 'US'}country_code: "US"[[Prototype]]: Objectemail_address: "sb-kfoao7192083@personal.example.com"name: {given_name: 'John', surname: 'Doe'}given_name: "John"surname: "Doe"[[Prototype]]: Objectpayer_id: "VCEX568H845ZY"[[Prototype]]: Objectconstructor: ƒ Object()hasOwnProperty: ƒ hasOwnProperty()isPrototypeOf: ƒ isPrototypeOf()propertyIsEnumerable: ƒ propertyIsEnumerable()toLocaleString: ƒ toLocaleString()toString: ƒ toString()valueOf: ƒ valueOf()__defineGetter__: ƒ __defineGetter__()__defineSetter__: ƒ __defineSetter__()__lookupGetter__: ƒ __lookupGetter__()__lookupSetter__: ƒ __lookupSetter__()__proto__: (...)get __proto__: ƒ __proto__()set __proto__: ƒ __proto__()purchase_units: [{…}]0: {reference_id: 'default', amount: {…}, payee: {…}, shipping: {…}, payments: {…}}length: 1[[Prototype]]: Array(0)status: "COMPLETED"update_time: "2022-02-14T09:36:32Z"[[Prototype]]: Objectconstructor: ƒ Object()hasOwnProperty: ƒ hasOwnProperty()isPrototypeOf: ƒ isPrototypeOf()propertyIsEnumerable: ƒ propertyIsEnumerable()toLocaleString: ƒ toLocaleString()toString: ƒ toString()valueOf: ƒ valueOf()__defineGetter__: ƒ __defineGetter__()__defineSetter__: ƒ __defineSetter__()__lookupGetter__: ƒ __lookupGetter__()__lookupSetter__: ƒ __lookupSetter__()__proto__: (...)get __proto__: ƒ __proto__()set __proto__: ƒ __proto__() {
+#   "id": "99C97108N4460334E",
+#   "intent": "CAPTURE",
+#   "status": "COMPLETED",
+#   "purchase_units": [
+#     {
+#       "reference_id": "default",
+#       "amount": {
+#         "currency_code": "USD",
+#         "value": "2029.80"
+#       },
+#       "payee": {
+#         "email_address": "serngreatkart.businesssandbox@gmail.com",
+#         "merchant_id": "M9LV6XU9R4TSA"
+#       },
+#       "shipping": {
+#         "name": {
+#           "full_name": "John Doe"
+#         },
+#         "address": {
+#           "address_line_1": "1 Main St",
+#           "admin_area_2": "San Jose",
+#           "admin_area_1": "CA",
+#           "postal_code": "95131",
+#           "country_code": "US"
+#         }
+#       },
+#       "payments": {
+#         "captures": [
+#           {
+#             "id": "47230985YR544431G",
+#             "status": "COMPLETED",
+#             "amount": {
+#               "currency_code": "USD",
+#               "value": "2029.80"
+#             },
+#             "final_capture": true,
+#             "seller_protection": {
+#               "status": "ELIGIBLE",
+#               "dispute_categories": [
+#                 "ITEM_NOT_RECEIVED",
+#                 "UNAUTHORIZED_TRANSACTION"
+#               ]
+#             },
+#             "create_time": "2022-02-14T09:36:32Z",
+#             "update_time": "2022-02-14T09:36:32Z"
+#           }
+#         ]
+#       }
+#     }
+#   ],
+#   "payer": {
+#     "name": {
+#       "given_name": "John",
+#       "surname": "Doe"
+#     },
+#     "email_address": "sb-kfoao7192083@personal.example.com",
+#     "payer_id": "VCEX568H845ZY",
+#     "address": {
+#       "country_code": "US"
+#     }
+#   },
+#   "create_time": "2022-02-14T09:35:58Z",
+#   "update_time": "2022-02-14T09:36:32Z",
+#   "links": [
+#     {
+#       "href": "https://api.sandbox.paypal.com/v2/checkout/orders/99C97108N4460334E",
+#       "rel": "self",
+#       "method": "GET"
+#     }
+#   ]
+# }
+#
