@@ -1,8 +1,10 @@
-from django.shortcuts import render, get_object_or_404
-from . models import Product
+from django.shortcuts import render, get_object_or_404, redirect
+from . models import Product, ReviewRating
 from category.models import Category
 from carts.models import CartItem
 from django.db.models import Q
+from . forms import ReviewForm
+from django.contrib import messages
 
 from carts.views import _cart_id
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -71,6 +73,33 @@ def search(request):
   return render(request, 'store/store.html', context)
 
 
+def submit_review(request, product_id):
+  url = request.META.get('HTTP_REFERER')
+  if request.method == 'POST':
+    try:
+      ### we don't want a review on this product by the same user twice/ may we update rather
+      reviews = ReviewRating.objects.get(user__id=request.user.id, product__id=product_id)
+      form = ReviewForm(request.POST, instance=reviews) 
+      # instance = reviews is there so that a new review will not be created by the same user, so the instance must be passed
+      form.save()
+      messages.success(request, 'Thank you! Your review has been updated.')
+      return redirect(url)
+
+    except ReviewRating.DoesNotExist:
+      form = ReviewForm(request.POST)
+      if form.is_valid():
+        data = ReviewRating()
+        data.subject = form.cleaned_data['subject']
+        data.rating = form.cleaned_data['rating']
+        data.review = form.cleaned_data['review']
+        data.ip = request.META.get('REMOTE_ADDR')
+        data.product_id = product_id 
+        data.user_id = request.user.id
+        data.save()
+        messages.success(request, 'Thank you! Your review has been submitted')
+        return redirect(url)
+
+
 
 
 
@@ -116,3 +145,8 @@ def search(request):
 ### the only difference is to say if 'search' is in request.path then do something in the store.html
 
 ## in the case of product variation, a form must be created in the product_detail.html file so that it can send information about what will be choosen to the cart page or the next stage of the process
+
+
+### user__id using it to search for the review means that in the reviews model there is a user and in the user model there is an id and that is what we are referring to
+
+### NB:- if you are already logged in it must redirect you from the log in page, i must be able to do this bro
