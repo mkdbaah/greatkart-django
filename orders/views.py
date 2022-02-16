@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import datetime
 import json
 
@@ -7,6 +7,8 @@ from . models import Order, Payment, OrderProduct
 from carts.models import CartItem
 from . forms import OrderForm
 from store.models import Product
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 
 # Create your views here.
 
@@ -16,6 +18,7 @@ def payments(request):
   ### the information from paypal land in our frontend(browser) and we pass it through fetch to the backend and we can now take it to the payment model
   # print(body)
   order = Order.objects.get(user=request.user, is_ordered=False, order_number=body['orderID'])
+  ### if is_ordered is now, will the payment go through, maybe an if else or try except function can be created
   payment = Payment(
     user = request.user,
     payment_id = body['transID'],
@@ -61,14 +64,30 @@ def payments(request):
   ### clear cart
   CartItem.objects.filter(user=request.user).delete()
 
-
-
-  ### send order received email to customer 
+  ### send order received email to customer
+  mail_subject = 'Thank you for your order!'
+  message = render_to_string('orders/order_received_email.html', {
+    'user': request.user,
+    'order': order,
+  })
+  ### write a code to store something to proof that email was sent so that users won't lie about it
+  ### also see how you can make it come in sms format
+  ### how to do your own mobile money and more with sms and django
+  
+  to_email = request.user.email
+  send_email = EmailMessage(mail_subject, message, to=[to_email])
+  send_email.send()
 
   ### send order number and transaction id back to sendData method via JsonResponse
+  data = {
+    'order_number': order.order_number,
+    'transID': payment.payment_id,
+  }
+  # print(order.order_number, payment.payment_id)
+  return JsonResponse(data)
+  ### this is the response we are sending back to the frontend(paypal sendData function)
 
-
-  return render(request, 'orders/payments.html')
+  
 
 
 def place_order(request, total=0, quantity=0):
@@ -139,6 +158,39 @@ def place_order(request, total=0, quantity=0):
 
   else:
     return redirect('checkout')
+
+
+def order_complete(request):
+  order_number = request.GET.get('order_number')
+  transID  = request.GET.get('payment_id')  
+  ## payment_id can be found in the url, but we will use them to go to the model model to fetch them (proper way of doing it)
+  try:
+    order = Order.objects.get(order_number=order_number, is_ordered=True)
+    ordered_products = OrderProduct.objects.filter(order_id=order.id)
+
+    payment = Payment.objects.get(payment_id=transID)
+
+    subtotal = 0
+    for i in ordered_products:
+      subtotal += (i.product_price * i.quantity)
+    
+    
+    
+
+
+    context = {
+      'order': order,
+      'ordered_products': ordered_products,
+      'order_number': order.order_number,
+      'transID': payment.payment_id,
+      'payment': payment,
+      'subtotal': subtotal,
+    }
+    return render(request, 'orders/order_complete.html', context)
+  
+  except (Payment.DoesNotExist, Order.DoesNotExist):
+    return redirect('home')
+    
     
 
 
@@ -168,3 +220,13 @@ def place_order(request, total=0, quantity=0):
 ### variations = models.ManyToManyField(Variation, blank=True) variation must be many to many in the models
 ### and the order products model was populated with data but not with fields (obviously) but the variations was not working yet. Guess we will fixed that.
 ### every cart item is stored as a product
+
+#     raise self.model.DoesNotExist(
+# orders.models.Order.DoesNotExist: Order matching query does not exist.
+### i got this error which means that you cannot pay for the same order twice (you can state a message saying if you want you must order again) 
+### because i think now is ordered is now True and not false
+### i checked and the user was charged (False) and no new order was made for him
+### 
+### we want to show the user details about his order and therefore we will send it with the redirect url (from frontend) to backend and we will receive it in the order_complete view function
+
+### the tax or functions is not working well with float so learn how to do it
