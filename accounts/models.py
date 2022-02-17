@@ -67,6 +67,10 @@ class Account(AbstractBaseUser):
   ## We need to tell this Account that we are using the MyAccountManager that to create the above two accounts(normal user and a super user)
   objects = MyAccountManager()
 
+  # we made this just to call it in the user reviews html page. we can also make the total = price * quantity here
+  def full_name(self):
+    return f'{self.first_name} {self.last_name}'
+
   def __str__(self):
     return self.email
 

@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from . models import Product, ReviewRating
 from category.models import Category
 from carts.models import CartItem
+from orders.models import OrderProduct
 from django.db.models import Q
 from . forms import ReviewForm
 from django.contrib import messages
@@ -48,10 +49,28 @@ def product_detail(request, category_slug, product_slug):
     
   except Exception as e:
     raise e
+
+  if request.user.is_authenticated:
+    ### checking if the user actually bought the product he wants to review
+    try:
+      orderproduct = OrderProduct.objects.filter(user=request.user, product_id=single_product.id).exists()
+
+    except OrderProduct.DoesNotExist:
+      orderproduct = None
+  
+  else:
+    orderproduct = None
+
+  #get the reviews that was posted
+  reviews = ReviewRating.objects.filter(product_id=single_product.id, status=True) # in case the admin want to set the status to false he can do it because not all reviews should be allowed, the admin or product owner must have a say 
+
+
   
   context = {
     'single_product': single_product,
     'in_cart'       : in_cart,
+    'orderproduct'  : orderproduct,
+    'reviews'       : reviews,
   }
   return render (request, 'store/product_detail.html', context)
 
@@ -150,3 +169,5 @@ def submit_review(request, product_id):
 ### user__id using it to search for the review means that in the reviews model there is a user and in the user model there is an id and that is what we are referring to
 
 ### NB:- if you are already logged in it must redirect you from the log in page, i must be able to do this bro
+
+### control F5 is for hard refresh (and the color of the ratings appeared)
