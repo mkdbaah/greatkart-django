@@ -81,6 +81,24 @@ class Account(AbstractBaseUser):
     return True
 
 
+class UserProfile(models.Model):
+  user = models.OneToOneField(Account, on_delete=models.CASCADE) # you can have only one profile for only one account
+  address_line_1 = models.CharField(max_length=100, blank=True)
+  address_line_2 = models.CharField(max_length=100, blank=True)
+  profile_picture = models.ImageField(blank=True, upload_to='userprofile')
+  city = models.CharField(max_length=20)
+  state = models.CharField(max_length=20)
+  country = models.CharField(max_length=20)
+
+  def __str__(self):
+    return self.user.first_name   
+    ### the user is in the UserProfile and the first_name is in the Account  model
+
+  def full_address(self):
+    return f'{self.address_line_1} {self.address_line_2}'
+
+
+
 ## delete the existing database (db.sqlite3)
 ## run python manage.py runserver first so that the empty db.sqlite3 will show up
 ## instead of the usual username it is now asking for the email (very cool but boiler plate code)
