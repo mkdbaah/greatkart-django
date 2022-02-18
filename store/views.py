@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from . models import Product, ReviewRating
+from . models import Product, ReviewRating, ProductGallery
 from category.models import Category
 from carts.models import CartItem
 from orders.models import OrderProduct
@@ -64,6 +64,11 @@ def product_detail(request, category_slug, product_slug):
   #get the reviews that was posted
   reviews = ReviewRating.objects.filter(product_id=single_product.id, status=True) # in case the admin want to set the status to false he can do it because not all reviews should be allowed, the admin or product owner must have a say 
 
+  # get the product gallery 
+  ### collect static after writing the css and accept it by typing 'yes' and not 'y'
+  ### we will some javascript to make sure when we click on an image it will show in the main / bigger space
+  product_gallery = ProductGallery.objects.filter(product_id=single_product.id)
+
 
   
   context = {
@@ -71,6 +76,7 @@ def product_detail(request, category_slug, product_slug):
     'in_cart'       : in_cart,
     'orderproduct'  : orderproduct,
     'reviews'       : reviews,
+    'product_gallery': product_gallery,
   }
   return render (request, 'store/product_detail.html', context)
 
