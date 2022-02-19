@@ -261,9 +261,16 @@ def my_orders(request):
   }
   return render(request, 'accounts/my_orders.html', context)
 
+
 @login_required(login_url='login')
 def edit_profile(request):
+  
   userprofile = get_object_or_404(UserProfile, user=request.user)
+  # try:
+  #   userprofile = UserProfile.objects.get(user_id=request.user.id)
+  # except UserProfile.DoesNotExist:
+  #   userprofile = None
+  
   if request.method == 'POST':
     user_form = UserForm(request.POST, instance=request.user)
     profile_form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
@@ -409,3 +416,4 @@ def order_detail(request, order_id):
 ### Before deplaying please change debug = False in the django settings
 
 ### we must fix the error of the user not having a profile picture
+### We must fix the issue of the user not pay for the same order twice 
