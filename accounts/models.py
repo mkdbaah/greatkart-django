@@ -83,9 +83,9 @@ class Account(AbstractBaseUser):
 
 class UserProfile(models.Model):
   user = models.OneToOneField(Account, on_delete=models.CASCADE) # you can have only one profile for only one account
-  address_line_1 = models.CharField(max_length=100, blank=True)
-  address_line_2 = models.CharField(max_length=100, blank=True)
-  profile_picture = models.ImageField(blank=True, upload_to='userprofile')
+  address_line_1 = models.CharField( blank=True , max_length=100)
+  address_line_2 = models.CharField(blank=True , max_length=100)
+  profile_picture = models.ImageField(default='default_profile_pic.png', upload_to='userprofile', blank=True, null=True)
   city = models.CharField(max_length=20)
   state = models.CharField(max_length=20)
   country = models.CharField(max_length=20)

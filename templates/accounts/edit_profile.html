@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% block content %}
 <section class="section-content padding-y bg">
   {% include 'includes/alerts.html' %}
   <div class="container">
@@ -12,7 +12,9 @@
           </header>
           <div class="card-body">
             <div class="text-right">
+              {% if userprofile.profile_picture %}
               <img src="{{userprofile.profile_picture.url}}" alt="Profile Picture" width="100" style="border-radius: 50%" />
+              {% endif %}
             </div>
             <div class="row">
               <div class="col-md-12">
@@ -39,11 +41,11 @@
                     </div>
                   </div>
                   <div class="form-group">
-                    <label>Address line 1</label>
+                    <label>Address line </label>
                     {{profile_form.address_line_1}}
                   </div>
                   <div class="form-group">
-                    <label>Address line 2</label>
+                    <label>Nearest Post Office</label>
                     {{profile_form.address_line_2}}
                   </div>
                   <div class="form-row">
@@ -52,7 +54,7 @@
                       {{profile_form.city}}
                     </div>
                     <div class="form-group col-md-4">
-                      <label>State</label>
+                      <label>Region</label>
                       {{profile_form.state}}
                     </div>
                     <div class="form-group col-md-4">
