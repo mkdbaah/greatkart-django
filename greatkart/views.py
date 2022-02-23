@@ -5,6 +5,7 @@ def home(request):
   products = Product.objects.all().filter(is_available=True).order_by('created_date') #remember - later
 
   for product in products:
+    reviews = 0
     reviews = ReviewRating.objects.filter(product_id=product.id, status=True)
 
   context = {
