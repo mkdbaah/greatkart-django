@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 
-import django_heroku
 from pathlib import Path
+import django_heroku
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -29,7 +29,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['sernprojectsgreatkart.herokuapp.com']
+ALLOWED_HOSTS = ['sernprojectsgreatkart.herokuapp.com', 'localhost']
 
 
 # Application definition
@@ -156,8 +156,8 @@ STATIC_ROOT = BASE_DIR /'static'
 STATICFILES_DIRS = [
     'greatkart/static',
 ]
-django_heroku.settings(locals())
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 ## media files configuration
@@ -185,4 +185,4 @@ HOST = config('HOST')
 PORT = config('PORT')
 
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+django_heroku.settings(locals())
