@@ -101,7 +101,7 @@ AUTH_USER_MODEL = 'accounts.Account'
 
 DATABASES = {
     'default': {
-        'ENGINE': config('ENGINE')
+        'ENGINE': config('ENGINE'),
         'NAME': config('NAME'),                      
         'USER': config('USER'),
         'PASSWORD': config('PASSWORD'),
